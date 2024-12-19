@@ -1,4 +1,3 @@
-
 document.getElementById('numberForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const N = parseInt(document.getElementById('numberInput').value);
@@ -15,11 +14,12 @@ document.getElementById('numberForm').addEventListener('submit', function(event)
                         outputDiv.innerHTML += `${count + 1}. Forbidden<br>`;
                         count++;
                         setTimeout(makeRequest, 1000);
-                    } else if (response.status === 200) {
-                       
-                    } else {
-                        
-                    }
+                    } else if (response.status === 405) {
+                        outputDiv.innerHTML += `${count + 1}. Method Not Allowed - Captcha Required<br>`;
+                        const captchaContainer = document.getElementById('captchaContainer');
+                        captchaContainer.style.display = 'block';
+                        showMyCaptcha();
+                    } 
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -28,3 +28,23 @@ document.getElementById('numberForm').addEventListener('submit', function(event)
     }
      makeRequest();
 });
+
+function showMyCaptcha() {
+    var container = document.querySelector("#my-captcha-container");
+    
+    AwsWafCaptcha.renderCaptcha(container, {
+        apiKey: "...API key goes here...",
+        onSuccess: captchaExampleSuccessFunction,
+        onError: captchaExampleErrorFunction,
+    });
+}
+
+function captchaExampleSuccessFunction(wafToken) {
+    const captchaContainer = document.getElementById('captchaContainer');
+    captchaContainer.style.display = 'none';
+    setTimeout(makeRequest, 1000);
+}
+
+function captchaExampleErrorFunction(error) {
+    console.error('Captcha Error:', error);
+}
